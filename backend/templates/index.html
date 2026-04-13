@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hybrid Intrusion Detection System</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: linear-gradient(135deg, #0f172a, #1e293b);
+        color: #e2e8f0;
+    }
+
+    header {
+        text-align: center;
+        padding: 40px 20px 10px;
+    }
+
+    header h1 {
+        font-size: 34px;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #f1f5f9;
+    }
+
+    header p {
+        font-size: 15px;
+        color: #94a3b8;
+        max-width: 720px;
+        margin: auto;
+        line-height: 1.6;
+    }
+
+    .main {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+    }
+
+    .card {
+        width: 520px;
+        background: rgba(255, 255, 255, 0.04);
+        padding: 30px;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.08);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+    }
+
+    .card h2 {
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #e2e8f0;
+    }
+
+    .card p {
+        font-size: 14px;
+        color: #94a3b8;
+        margin-bottom: 15px;
+    }
+
+    textarea {
+        width: 100%;
+        height: 120px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: #020617;
+        color: #e2e8f0;
+        padding: 12px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    textarea::placeholder {
+        color: #64748b;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        background: #2563eb;
+        color: white;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        background: #3b82f6;
+    }
+
+    .loading {
+        margin-top: 15px;
+        font-size: 13px;
+        color: #94a3b8;
+        display: none;
+        text-align: center;
+    }
+
+    .result {
+        margin-top: 25px;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 17px;
+        font-weight: 500;
+    }
+
+    .normal {
+        background: rgba(34, 197, 94, 0.12);
+        color: #4ade80;
+        border: 1px solid rgba(34,197,94,0.3);
+    }
+
+    .attack {
+        background: rgba(239, 68, 68, 0.12);
+        color: #f87171;
+        border: 1px solid rgba(239,68,68,0.3);
+    }
+
+    .model {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+
+    footer {
+        text-align: center;
+        margin-top: 40px;
+        font-size: 12px;
+        color: #64748b;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Hybrid Intrusion Detection System for Cloud Security using Deep Learning and Heuristic Analysis</h1>
+    <p>
+        This system analyzes network traffic patterns to detect malicious activity in cloud environments 
+        by combining rule-based anomaly detection with deep learning models. It enables real-time classification 
+        of traffic as normal or attack, improving detection accuracy and system robustness.
+    </p>
+</header>
+
+<div class="main">
+    <div class="card">
+        <h2>Traffic Analysis Module</h2>
+        <p>Provide network traffic features to evaluate potential security threats.</p>
+
+        <textarea id="input_data" placeholder="Enter comma-separated network traffic features..."></textarea>
+
+        <button onclick="analyze()">Analyze Traffic</button>
+
+        <div class="loading" id="loading">Analyzing network activity...</div>
+
+        <div id="resultBox" class="result" style="display:none;">
+            <div id="prediction"></div>
+            <div id="model" class="model"></div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    Hybrid IDS | Deep Learning + Heuristic Analysis
+</footer>
+
+<script>
+function analyze() {
+
+    const input = document.getElementById("input_data").value;
+
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("resultBox").style.display = "none";
+
+    fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: "input_data=" + encodeURIComponent(input)
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        document.getElementById("loading").style.display = "none";
+
+        let box = document.getElementById("resultBox");
+        let pred = document.getElementById("prediction");
+        let model = document.getElementById("model");
+
+        box.style.display = "block";
+
+        if (data.prediction === "Attack") {
+            box.className = "result attack";
+            pred.innerText = "Malicious Traffic Detected";
+        }
+        else if (data.prediction === "Normal") {
+            box.className = "result normal";
+            pred.innerText = "Normal Network Activity";
+        }
+        else {
+            box.className = "result";
+            pred.innerText = "Error in prediction";
+        }
+
+        model.innerText = "Detection Method: " + data.model_used;
+
+    })
+    .catch(err => {
+        document.getElementById("loading").style.display = "none";
+        alert("Server error");
+    });
+}
+</script>
+
+</body>
+</html>
